@@ -1,0 +1,341 @@
+Autor: Joonas Puura, 12.05.2016
+
+Failid:
+    Makefile
+        Rakenduse kompileerimiseks. make.
+        
+    main.c
+        Käsurealt parameetrite lugemine ja nendele kohaselt tegutsemine. 
+        
+        Eduka lõpetamise korral tagastab 0.
+        Vea korral sulgeb programmi.
+        
+    auxfunctions.c/.h
+        Sisaldab peamiste abifunktsioonide realisatsioone
+        
+        Defineeritud makrod:
+            #define LLOYD 1
+            #define ELKAN 2
+            #define MCQUEEN 3
+            #define HAMERLY 4
+            #define FIND_CLOSEST 5
+            #define HARTIGAN 6
+
+            #define RANDOM_INIT 1
+            #define KPP_INIT 2
+            #define FIRST_N 3
+            #define RANDOM_PARTITION 4
+            #define FURTHEST_FIRST 5
+
+            #define EUCLIDEAN_METRIC 1
+            #define MANHATTAN_METRIC 2
+    
+        int get_option_location(int argc, char *argv[], char *choice)
+            Otsib etteantud sõne massiivist, kui esineb, siis tagastab indeksi.
+            Kasutatakse käsurealt antud parameetrite seest otsimiseks.
+            
+            argc   [IN] - käsureaparameetrite arv
+            argv   [IN] - käsureaparameetrite sõnemassiiv
+            choice [IN] - otsitav sõne
+            
+            Tagastusväärtus (int):
+                -1, kui ei leidunud
+                Leidumise korral vastav indeks.
+                
+                
+        double* get_points_from_file(const char *fileName, size_t *n, size_t *d)
+            Andes ette objektide failinime loeb failist sisse objektid.
+            Esimeselt realt loetakse kaks täisarvu, vastavalt n ja d.
+            Järgmistelt ridadelt loetakse sisse n*d ujukomaarvu.
+            
+            fileName [IN] - failinimi, millest objektid loetakse
+            n       [OUT] - failist esimeselt realt loetud esimene täisarv, mis tähistab objektide arvu failis
+            d       [OUT] - failist esimest realt loetud teine täisarv, mis tähistab andmete dimensionaalsust
+            
+            
+            Tagastusväärtus (double*):
+                Tagastab double tüüpi massiivi mäluala suuruses sizeof(double)*n*d otsviida.
+                0, kui lugemine ebaõnnestus 
+                Vea korral väljub programmist (nt pole piisavalt objekte failis).
+                
+                
+        void print_clustering(size_t *assignments, size_t n)
+            Kirjutab objektide klastrikuuluvused standardväljundisse
+            
+            assignments [IN] - massiiv täisarvudest, kuhu objektid kuuluvad
+            n           [IN] - objektide arv.
+            
+        int write_assignments_to_file(char *fileName, size_t *clustering, size_t n)   
+            Kirjutab objektide kuuluvused etteantud nimega faili.
+            
+            fileName    [IN] - failinimi, millesse üritatakse kirjutada objektide kuuluvused.
+            assignments [IN] - massiiv täisarvudest, kuhu objektid kuuluvad
+            n           [IN] - objektide arv.
+            
+            
+            Tagastusväärtus (int):
+                0, kui kõik õnnestus
+               -1, kui failiavamine ebaõnnestus.
+            
+        int write_centers_to_file(char *fileName, double *centers, size_t d, size_t k)
+            Kirjutab keskpunktid etteantud nimega faili.
+            
+            fileName   [IN] - failinimi, millesse üritatakse kirjutada objektide kuuluvused.
+            centers    [IN] - keskpunktide massiiv
+            d          [IN] - keskpunktide dimensionaalsus
+            k          [IN] - keskpunktide arv
+            
+            
+        double* get_centers_from_file(char *fileName, size_t d, size_t *k)
+            Loeb keskpunktid etteantud nimega failist.
+            Loeb esimeselt realt täisarvu k, mis salvestatakse k muutujasse.
+            Järgmistelt ridadelt loetakse k*d ujukomaarvu, mis tagastatakse keskpunktidena.
+            
+            d          [IN] - keskpunktide dimensionaalsus
+            k          [OUT] - keskpunktide arv            
+            
+            Tagastusväärtus (double*):
+                Tagastab double tüüpi massiivi mäluala suuruses sizeof(double)*k*d otsviida.
+                0, kui lugemine ebaõnnestus 
+                Vea korral väljub programmist (nt pole piisavalt objekte failis).
+                
+                
+        unsigned long long llrand()
+            Funktsioon suurte pseudojuhuslike täisarvude genereerimiseks.
+            
+            Tagastusväärtus (long long):
+                Juhuslik long long tüüpi täisarv.
+        
+        void find_closest_centers(double *points, size_t n, size_t d, size_t k, double* clusterCenters, size_t* assignments, metricType m_metric)
+            Funktsioon igale punktile lähima keskpunkti otsimiseks. Kasutatakse peamiselt siis, kui ette anda keskpunktide fail ja näha antud keskpunktide korral klasterdust.
+            
+            points [IN] - objektide massiiv
+            n      [IN] - objektide arv
+            d      [IN] - objektide ja keskpunktide dimensionaalsus
+            k      [IN] - keskpunktide arv
+            clusterCenters [IN] - Keskpunktide massiiv
+            assignments    [OUT] - massiiv täisarvudest, kuhu objektid kuuluvad
+            m_metric [IN] - meetrika, mida kasutatakse.
+            
+        int algorithm_choice(char* algorithm)
+            Funktsioon algoritmi valimiseks.
+            
+            algorithm - sõne
+            
+            Tagastusväärtus (int):
+                -1, kui algoritmi ei leidnud.
+                Vastasel juhul algoritmile vastav täisarv
+                
+            
+        int initmethod_choice(char* method)    
+            Funktsioon keskpunktide valimise algoritmi valimiseks.
+            
+            method - sõne
+            
+            Tagastusväärtus (int):
+                -1, kui algoritmi ei leidnud.
+                Vastasel juhul algoritmile vastav täisarv
+                
+        double calculate_e_value(double *points, size_t n, size_t d, double *clusterCenters, size_t *assignments)
+            Funktsioon TWGD (Total Within Group Distance) arvutamiseks.
+            
+            points [IN] - objektide massiiv
+            n      [IN] - objektide arv
+            d      [IN] - objektide ja keskpunktide dimensionaalsus
+            k      [IN] - keskpunktide arv
+            clusterCenters [IN] - Keskpunktide massiiv
+            assignments    [IN] - massiiv täisarvudest, kuhu objektid kuuluvad            
+            
+            Tagastusväärtus (double):
+                tagastab TWGD
+                
+        double calculate_sqrd_value(double *points, size_t n, size_t d, double *clusterCenters, size_t *assignments)       
+            Funktsioon WCSS (Within Cluster Sum of Squares) arvutamiseks.
+            
+            points [IN] - objektide massiiv
+            n      [IN] - objektide arv
+            d      [IN] - objektide ja keskpunktide dimensionaalsus
+            k      [IN] - keskpunktide arv
+            clusterCenters [IN] - Keskpunktide massiiv
+            assignments    [IN] - massiiv täisarvudest, kuhu objektid kuuluvad            
+            
+            Tagastusväärtus (double):
+                tagastab WCSS            
+    
+    
+    clusteringalgorithms.h
+        Kasutatakse mugavamaks algoritmide päiste sisselaadimiseks.
+        
+        
+    commonmacros.h
+        Defineerib mõningad programmis korduvalt kasutatavad makrod.
+        Mälu vabastamise makro ALFREE(name) ja mälu allokeerimise õnnestumise kontroll ALCHECK(name)
+        
+        Max ja min makrod:
+            #define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
+            #define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
+            
+            
+        typedef double (*metricType)(size_t, double*, double*); - meetrikate tüübi definitsioon.
+
+    
+    initmethods.c/.h
+    
+        static size_t in_array(size_t* array, size_t nr, size_t n)
+            Funktsioon otsimaks, kas mingi täisarv paikneb etteantud täisarvude massiivis.
+            
+            array [IN] - täisarvude massiiv
+            nr    [IN] - otsitav täisarv
+            n     [IN] - massiivi pikkus
+            
+            Tagastusväärtus (int):
+                1, kui täisarv esines massiivis
+                0, kui täisarvu ei esinenud massiivis
+                
+                
+        double* random_cluster_init(double* data, size_t n, int d, size_t k, unsigned int seed)
+            Funktsioon algkeskpunktide valikuks. Kasutab Forgy meetodit k keskpunkti valimiseks, millest saavad algsed keskpunktid.
+        
+            points [IN] - objektide massiiv
+            n      [IN] - objektide arv
+            d      [IN] - objektide ja keskpunktide dimensionaalsus
+            k      [IN] - keskpunktide arv
+            seed   [IN] - pseudojuhusliku arvugeneraatori seeme
+            
+            Tagastusväärtus (double*):
+                Suvaliselt valitud keskpunktide massiiv. sizeof(double)*k*d
+        
+        double* pick_n_first(double* data, size_t n, size_t d, size_t k)
+            Funktsioon valib algkeskpunktideks objektide failist k esimest.
+            
+
+                points [IN] - objektide massiiv
+                n      [IN] - objektide arv
+                d      [IN] - objektide ja keskpunktide dimensionaalsus
+                k      [IN] - keskpunktide arv
+                
+                Tagastusväärtus (double*):
+                    Keskpunktide massiiv. sizeof(double)*k*d        
+        
+        double* kmeans_pp(double* data, size_t n, int d, size_t k, unsigned int seed, metricType m_metric)
+            Funktsioon kasutab k-means++ algkeskpunktide valikuks.
+            
+            
+                points [IN] - objektide massiiv
+                n      [IN] - objektide arv
+                d      [IN] - objektide ja keskpunktide dimensionaalsus
+                k      [IN] - keskpunktide arv
+                seed   [IN] - pseudojuhusliku arvugeneraatori seeme
+                m_metric [IN] kasutatav meetrika
+                
+                Tagastusväärtus (double*):
+                    Valitud keskpunktide massiiv. sizeof(double)*k*d        
+                    
+        double* furthest_first(double* data, size_t n, size_t d, size_t k, unsigned int seed, metricType m_metric)
+                Funktsioon kasutab kaugem enne meetodit algsete keskpunktide valikuks.
+                
+                points [IN] - objektide massiiv
+                n      [IN] - objektide arv
+                d      [IN] - objektide ja keskpunktide dimensionaalsus
+                k      [IN] - keskpunktide arv
+                seed   [IN] - pseudojuhusliku arvugeneraatori seeme
+                m_metric [IN] kasutatav meetrika
+                
+                Tagastusväärtus (double*):
+                    Valitud keskpunktide massiiv. sizeof(double)*k*d    
+            
+        double* random_partition(double* data, size_t n, size_t d, size_t k, unsigned int seed);
+            Funktsioon jagamise meetodil algkeskpunktide valikuks
+        
+            points [IN] - objektide massiiv
+            n      [IN] - objektide arv
+            d      [IN] - objektide ja keskpunktide dimensionaalsus
+            k      [IN] - keskpunktide arv
+            seed   [IN] - pseudojuhusliku arvugeneraatori seeme
+                
+            Tagastusväärtus (double*):
+                Valitud keskpunktide massiiv. sizeof(double)*k*d    
+        
+        
+    lloyd.c/.h
+        void lloyd_clustering(double *points, size_t n, size_t d, size_t k, int iterations, double *clusterCenters, size_t *assignments, metricType m_metric);
+            Funktsioon Lloydi algoritmi rakendamiseks.
+            
+            points [IN] - objektide massiiv
+            n      [IN] - objektide arv
+            d      [IN] - objektide ja keskpunktide dimensionaalsus
+            k      [IN] - keskpunktide arv
+            iterations [IN] - max iteratsioonide arv
+            clusterCenters [IN/OUT] - keskpunktide massiiv
+            assignments    [OUT] - massiiv täisarvudest, kuhu objektid kuuluvad.
+            m_metric [IN] - meetrika, mida klasterdamisel kasutatakse.
+
+        
+    elkan.c/.h
+        void elkan_clustering(double *points, size_t n, size_t d, size_t k, int iterations, double *clusterCenters, size_t *assignments, metricType m_metric);
+            Funktsioon Elkani algoritmi rakendamiseks.
+            
+            points [IN] - objektide massiiv
+            n      [IN] - objektide arv
+            d      [IN] - objektide ja keskpunktide dimensionaalsus
+            k      [IN] - keskpunktide arv
+            iterations [IN] - max iteratsioonide arv
+            clusterCenters [IN/OUT] - keskpunktide massiiv
+            assignments    [OUT] - massiiv täisarvudest, kuhu objektid kuuluvad.
+            m_metric [IN] - meetrika, mida klasterdamisel kasutatakse.
+
+    hamerly.c/.h
+        void hamerly_clustering(double *points, size_t n, size_t d, size_t k, int iterations, double *clusterCenters, size_t *assignments, metricType m_metric);
+            Funktsioon Hamerly algoritmi rakendamiseks.
+            
+            points [IN] - objektide massiiv
+            n      [IN] - objektide arv
+            d      [IN] - objektide ja keskpunktide dimensionaalsus
+            k      [IN] - keskpunktide arv
+            iterations [IN] - max iteratsioonide arv
+            clusterCenters [IN/OUT] - keskpunktide massiiv
+            assignments    [OUT] - massiiv täisarvudest, kuhu objektid kuuluvad.
+            m_metric [IN] - meetrika, mida klasterdamisel kasutatakse.
+
+    
+    macqueen.c/.h
+        void macqueen_clustering(double *points, size_t n, size_t d, size_t k, int iterations, double *clusterCenters, size_t *assignments, metricType m_metric);
+            Funktsioon MacQueeni algoritmi rakendamiseks.
+            
+            points [IN] - objektide massiiv
+            n      [IN] - objektide arv
+            d      [IN] - objektide ja keskpunktide dimensionaalsus
+            k      [IN] - keskpunktide arv
+            iterations [IN] - max iteratsioonide arv
+            clusterCenters [IN/OUT] - keskpunktide massiiv
+            assignments    [OUT] - massiiv täisarvudest, kuhu objektid kuuluvad.
+            m_metric [IN] - meetrika, mida klasterdamisel kasutatakse.
+
+   
+    hartiganwong.c/.h
+        void hartigan_clustering(double *points, size_t n, size_t d, size_t k, int iterations, double *clusterCenters, size_t *assignments, metricType m_metric);
+            Funktsioon Hartigan-Wongi algoritmi rakendamiseks.
+            
+            points [IN] - objektide massiiv
+            n      [IN] - objektide arv
+            d      [IN] - objektide ja keskpunktide dimensionaalsus
+            k      [IN] - keskpunktide arv
+            iterations [IN] - max iteratsioonide arv
+            clusterCenters [IN/OUT] - keskpunktide massiiv
+            assignments    [OUT] - massiiv täisarvudest, kuhu objektid kuuluvad.
+            m_metric [IN] - meetrika, mida klasterdamisel kasutatakse.
+
+
+    metrics.c/.h
+        Failis hoitakse meetrikate arvutamise funktsioone.
+        
+        double euclid(size_t d, double* data1, double* data2);
+            
+            d      [IN] - vektorite dimensionaalsus
+            data1  [IN] - esimene andmeobjekt
+            data2  [IN] - teine andmeobjekt
+            
+            Tagastusväärtus (double):
+                Eukleidiline kaugus kahe andmeobjekti data1 ja data2 vahel.
+            
+            
